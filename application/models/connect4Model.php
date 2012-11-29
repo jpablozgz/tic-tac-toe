@@ -59,6 +59,17 @@ function connect4FullBoard($board)
 	return (count($board,COUNT_RECURSIVE)==48);
 }				
 
+/**
+ * Looks for a series of 4+ consecutive numbers
+ * @param array $row Series of numbers
+ * @return array: Winning row
+ */
+function FourInARow($row)
+{
+	$winners = array();
+	return $winners;
+}
+
 /** 
  * Determines the winning row of 4 marks (if any)
  * @param array $board Game board
