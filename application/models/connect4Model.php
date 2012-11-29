@@ -70,7 +70,7 @@ function connect4WinningRow($board, $column)
 	$winners=array();
 
 	$row=connect4FirstUnusedSquare($board,$column)+1;
-	$mark=$board[$row,$column];
+	$mark=$board[$row][$column];
 
 	array_keys($board[$row],$mark);
 	//Mirar si hay cuatro keys consecutivas (conteniendo a $column)
