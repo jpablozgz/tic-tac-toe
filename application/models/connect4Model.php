@@ -50,14 +50,13 @@ function connect4Update($board, $column, $mark)
 }
 
 /** 
- * Evaluates if the game came to an end after the last move
+ * Evaluates if the board is full
  * @param array $board Game board
- * @param int $column Column in which the last mark was dropped
- * @return bool: Game ended?
+ * @return bool: Full board?
  */
-function connect4EvaluateEnd($board, $column)
+function connect4FullBoard($board)
 {
-	return FALSE;
+	return (count($board,COUNT_RECURSIVE)==48);
 }				
 
 /** 
@@ -68,6 +67,17 @@ function connect4EvaluateEnd($board, $column)
  */
 function connect4WinningRow($board, $column)
 {
-	return array();
+	$winners=array();
+
+	$row=connect4FirstUnusedSquare($board,$column)+1;
+	$mark=$board[$row,$column];
+
+	array_keys($board[$row],$mark);
+	//Mirar si hay cuatro keys consecutivas (conteniendo a $column)
+	//en el vector que me devuelve la anterior funcion
+	
+	//Luego hay que hacer algo parecido por columna y para las dos diagonales
+
+	return $winners;
 }
 ?>

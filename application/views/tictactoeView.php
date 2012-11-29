@@ -19,23 +19,40 @@
 		text-align:center;
 		font-size:xx-large;
 	}
+	td.winner {
+		background-color: yellow;
+	}
 </style>
 </head>
 <body>
+<? if ($game_ended):
+		if (!$winners):?>
+<h2>The game ended in a draw.</h2>
+<?		else: if ($board[$winners[0][0]][$winners[0][1]]=="X"):?>
+<h2>You win!</h2>
+<?		else:?>
+<h2>Computer wins!</h2>
+<?		endif;endif;
+endif;?>
 <div id="board">
 <form action="index.php" method="POST">
 	<input type="hidden" name="game" value="<?=$game?>"/>
-	<input type="hidden" name="game_ended" value="<?=$game_ended?>"/>
-	<input type="hidden" name="winners" value="<?=serialize($winners);?>"/>
-	<input type="hidden" name="board" value="<?=serialize($board);?>"/>
+	<input type="hidden" name="board" value="<?=htmlspecialchars(serialize($board));?>"/>
 	<table>
 <? for($i=1;$i<=3;$i++):?>
 		<tr>
-<? for($j=1;$j<=3;$j++):?>
-		<td><?if (isset($board[$i][$j])):
-				echo $board[$i][$j];
-			else: ?><input type="submit" name="<?=($i-1)*3+$j?>" value="HERE"/><?
-			endif;
+<? for($j=1;$j<=3;$j++):
+	if(array_search(array($i,$j),$winners)===FALSE):?>
+		<td><?
+	else:?>
+		<td class="winner"><?
+	endif;
+	if (isset($board[$i][$j])):
+		echo $board[$i][$j];
+	else: if (!$game_ended):
+			?><input type="submit" name="<?=($i-1)*3+$j?>" value="HERE"/><?
+		  else:?>&nbsp;<?
+	endif;endif;
 		?></td>
 <? endfor;?>
 		</tr>
