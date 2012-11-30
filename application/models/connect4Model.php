@@ -85,7 +85,10 @@ function seriesContainsWinningLine($series)
 				$consecutive=array();
 			} 
 		}
+		if(count($consecutive)>=4)
+			array_push($winners,$consecutive);
 	}
+
 	return $winners;
 }
 
@@ -103,7 +106,8 @@ function connect4WinningLine($board, $last_col)
 	// Add last_row to the lines to be checked
 	$checkable_lines[] = $board[$last_row];
 	for($j=1;$j<=7;$j++)
-		$coords[] = array($last_row,$j);
+		if(isset($board[$last_row][$j]))
+			$coords[$j] = array($last_row,$j);
 	$coords_lines[] = $coords;
 	
 	// Add last_column to the lines to be checked
@@ -111,8 +115,11 @@ function connect4WinningLine($board, $last_col)
 	$coords = array();
 	for($i=1;$i<=6;$i++)
 	{
-		$line[] = $board[$i][$last_col];
-		$coords[] = array($i,$last_col);
+		if(isset($board[$i][$last_col]))
+		{
+			$line[$i] = $board[$i][$last_col];
+			$coords[$i] = array($i,$last_col);
+		}
 	}
 	$checkable_lines[] = $line;
 	$coords_lines[] = $coords;
@@ -121,19 +128,25 @@ function connect4WinningLine($board, $last_col)
 	$line = array();
 	$coords = array();
 	$i = 6; $j = 1;
-	$left = ($last_column <= 7 - $last_row);
+	$left = ($last_col <= 7 - $last_row);
 	if($left) 		//upper left triangular submatrix
 		for($i=$last_row+$last_col-1;$i>=1;$i--)
 		{
-			$line[] = $board[$i][$j];
-			$coords[] = array($i,$j);
+			if(isset($board[$i][$j]))
+			{
+				$line[$j] = $board[$i][$j];
+				$coords[$j] = array($i,$j);
+			}
 			$j++;
 		}
 	else			//bottom right triangular submatrix
-		for($j=$last_column+$last_row-6;$j<=7;$j++)
+		for($j=$last_col+$last_row-6;$j<=7;$j++)
 		{
-			$line[] = $board[$i][$j];
-			$coords[] = array($i,$j);
+			if(isset($board[$i][$j]))
+			{
+				$line[$j] = $board[$i][$j];
+				$coords[$j] = array($i,$j);
+			}
 			$i--;
 		}
 	$checkable_lines[] = $line;
@@ -143,19 +156,25 @@ function connect4WinningLine($board, $last_col)
 	$line = array();
 	$coords = array();
 	$i = 1; $j = 1;
-	$left = (last_row >= last_column);
+	$left = ($last_row >= $last_col);
 	if($left)	 	//bottom left triangular submatrix
-		for($i=$last_row-$last_column+1;$i<=6;$i++)
+		for($i=$last_row-$last_col+1;$i<=6;$i++)
 		{
-			$line[] = $board[$i][$j];
-			$coords[] = array($i,$j);
+			if(isset($board[$i][$j]))
+			{
+				$line[$j] = $board[$i][$j];
+				$coords[$j] = array($i,$j);
+			}
 			$j++;
 		}
 	else	 		//upper right triangular submatrix
-		for($j=$last_column-$last_row+1;$j<=7;$j++)
+		for($j=$last_col-$last_row+1;$j<=7;$j++)
 		{
-			$line[] = $board[$i][$j];
-			$coords[] = array($i,$j);
+			if(isset($board[$i][$j]))
+			{
+				$line[$i] = $board[$i][$j];
+				$coords[$i] = array($i,$j);
+			}
 			$i++;
 		}
 	$checkable_lines[] = $line;
@@ -169,9 +188,10 @@ function connect4WinningLine($board, $last_col)
 		$keys = array_keys($checkable_lines[$i],$last_token);
 		foreach ($keys as $key)
 			$series[$key] = $coords_lines[$i][$key];
-		array_merge($winners, seriesContainsWinningLine($series));
+		$prueba = seriesContainsWinningLine($series);
+		$winners = array_merge($winners, seriesContainsWinningLine($series));
 	}
-
+	
 	return $winners;
 }
-?
+?>
