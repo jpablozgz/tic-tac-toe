@@ -20,15 +20,15 @@ else // a button was pressed playing the current game
 	$game = $_POST['game'];
 	$board = unserialize(htmlspecialchars_decode($_POST['board']));
 
-	$square_pressed = intval(array_search('HERE',$_POST));
-	$board = call_user_func($game.'Update',$board,$square_pressed,'X');
-	$winners = call_user_func($game.'WinningRow',$board,$square_pressed);
+	$cell_selected = intval(array_search('HERE',$_POST));
+	$board = call_user_func($game.'Update',$board,$cell_selected,'X');
+	$winners = call_user_func($game.'WinningLine',$board,$cell_selected);
 	$game_ended = $winners || call_user_func($game.'FullBoard',$board);
 	if (!$game_ended)
 	{
-		$square = call_user_func($game.'NextMove',$board,'O');
-		$board = call_user_func($game.'Update',$board,$square,'O');
-		$winners = call_user_func($game.'WinningRow',$board,$square);
+		$cell = call_user_func($game.'NextMove',$board,'O');
+		$board = call_user_func($game.'Update',$board,$cell,'O');
+		$winners = call_user_func($game.'WinningLine',$board,$cell);
 		$game_ended = $winners || call_user_func($game.'FullBoard',$board);
 	}
 }

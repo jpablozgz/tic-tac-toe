@@ -3,10 +3,10 @@
 /** 
  * Proposes a next move for the player (assuming that at least one is possible)
  * @param array $board Game board
- * @param string $mark Mark used by the computer (noughts, crosses, ...)
- * @return int: Column to drop next
+ * @param string $token Token used by the computer (noughts, crosses, ...)
+ * @return int: Column to drop next token
  */
-function connect4NextMove($board, $mark)
+function connect4NextMove($board, $token)
 {
 	do {
 		$column = rand(1,7);
@@ -15,12 +15,12 @@ function connect4NextMove($board, $mark)
 }
 
 /**
- * Returns the row of the lowest unused square in the column
+ * Returns the row of the lowest unused cell in the column
  * @param array $board Game board
  * @param int $column Column selected
- * @return int: Lowest row with square empty (0 = full column)
+ * @return int: Lowest row with empty cell (0 = the column is full)
  */
-function connect4FirstUnusedSquare($board, $column)
+function connect4FirstUnusedCell($board, $column)
 {
 	if (is_int($column) && $column >= 1 && $column <= 7)
 	{
@@ -34,17 +34,17 @@ function connect4FirstUnusedSquare($board, $column)
 /**
  * Updates board with the provided move
  * @param array $board Game board
- * @param int $column Column where the mark is to be dropped
- * @param string $mark Mark used by the current player
+ * @param int $column Column where the token is to be dropped
+ * @param string $token Token used by the current player
  * @return array: Updated game board
  */
-function connect4Update($board, $column, $mark)
+function connect4Update($board, $column, $token)
 {
 	if (is_int($column) && $column >= 1 && $column <= 7)
 	{
-		$row = connect4FirstUnusedSquare($board, $column);
+		$row = connect4FirstUnusedCell($board, $column);
 		if($row!=0)
-			$board[$row][$column]=$mark;
+			$board[$row][$column]=$token;
 	}
 	return $board;
 }
@@ -60,35 +60,118 @@ function connect4FullBoard($board)
 }				
 
 /**
- * Looks for a series of 4+ consecutive numbers
- * @param array $row Series of numbers
- * @return array: Winning row
+ * Looks for a winning line in a series of aligned cells
+ * @param array $series Series of aligned cells with the same token
+ * @return array: Cells of the winning line
  */
-function FourInARow($row)
+function seriesContainsWinningLine($series)
 {
 	$winners = array();
+	
+	if($series)
+	{
+		$min_series = min(array_keys($series));
+		$max_series = max(array_keys($series));
+		$consecutive=array();
+
+		for($i=$min_series;$i<=$max_series;$i++)
+		{
+			if(array_key_exists($i,$series))
+				$consecutive[]=$series[$i];
+			else
+			{
+				if(count($consecutive)>=4)
+					array_push($winners,$consecutive);
+				$consecutive=array();
+			} 
+		}
+	}
 	return $winners;
 }
 
 /** 
- * Determines the winning row of 4 marks (if any)
+ * Returns all cells within winning lines (if any)
  * @param array $board Game board
- * @param int $column Column in which the last mark was dropped
- * @return array: Winning row
+ * @param int $column Column in which the last token was dropped
+ * @return array: Cells of the winning lines
  */
-function connect4WinningRow($board, $column)
+function connect4WinningLine($board, $last_col)
 {
 	$winners=array();
+	$last_row=connect4FirstUnusedCell($board,$last_col)+1;
 
-	$row=connect4FirstUnusedSquare($board,$column)+1;
-	$mark=$board[$row][$column];
-
-	array_keys($board[$row],$mark);
-	//Mirar si hay cuatro keys consecutivas (conteniendo a $column)
-	//en el vector que me devuelve la anterior funcion
+	// Add last_row to the lines to be checked
+	$checkable_lines[] = $board[$last_row];
+	for($j=1;$j<=7;$j++)
+		$coords[] = array($last_row,$j);
+	$coords_lines[] = $coords;
 	
-	//Luego hay que hacer algo parecido por columna y para las dos diagonales
+	// Add last_column to the lines to be checked
+	$line = array();
+	$coords = array();
+	for($i=1;$i<=6;$i++)
+	{
+		$line[] = $board[$i][$last_col];
+		$coords[] = array($i,$last_col);
+	}
+	$checkable_lines[] = $line;
+	$coords_lines[] = $coords;
+
+	// Add diagonal 1 to the lines to be checked
+	$line = array();
+	$coords = array();
+	$i = 6; $j = 1;
+	$left = ($last_column <= 7 - $last_row);
+	if($left) 		//upper left triangular submatrix
+		for($i=$last_row+$last_col-1;$i>=1;$i--)
+		{
+			$line[] = $board[$i][$j];
+			$coords[] = array($i,$j);
+			$j++;
+		}
+	else			//bottom right triangular submatrix
+		for($j=$last_column+$last_row-6;$j<=7;$j++)
+		{
+			$line[] = $board[$i][$j];
+			$coords[] = array($i,$j);
+			$i--;
+		}
+	$checkable_lines[] = $line;
+	$coords_lines[] = $coords;
+	
+	// Add diagonal 2 to the lines to be checked
+	$line = array();
+	$coords = array();
+	$i = 1; $j = 1;
+	$left = (last_row >= last_column);
+	if($left)	 	//bottom left triangular submatrix
+		for($i=$last_row-$last_column+1;$i<=6;$i++)
+		{
+			$line[] = $board[$i][$j];
+			$coords[] = array($i,$j);
+			$j++;
+		}
+	else	 		//upper right triangular submatrix
+		for($j=$last_column-$last_row+1;$j<=7;$j++)
+		{
+			$line[] = $board[$i][$j];
+			$coords[] = array($i,$j);
+			$i++;
+		}
+	$checkable_lines[] = $line;
+	$coords_lines[] = $coords;
+	
+	// Look for winning series in the four checkable lines
+	$last_token=$board[$last_row][$last_col];
+	for ($i=0; $i<=3; $i++)
+	{
+		$series = array();
+		$keys = array_keys($checkable_lines[$i],$last_token);
+		foreach ($keys as $key)
+			$series[$key] = $coords_lines[$i][$key];
+		array_merge($winners, seriesContainsWinningLine($series));
+	}
 
 	return $winners;
 }
-?>
+?

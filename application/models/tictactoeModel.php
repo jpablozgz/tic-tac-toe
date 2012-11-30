@@ -2,29 +2,29 @@
 /**
  * Proposes a next move for the computer
  * @param array $board Game board
- * @param string $mark Mark used by the computer (noughts, crosses, ...)
- * @return int: Square to mark next
+ * @param string $token Token used by the computer (noughts, crosses, ...)
+ * @return int: Cell to put the next token
  */
-function tictactoeNextMove($board, $mark)
+function tictactoeNextMove($board, $token)
 {
 	do {
-		$square = rand(1,9);
-	} while (isset($board[(($square-1)/3)+1][(($square-1)%3)+1]));
-	return $square;
+		$cell = rand(1,9);
+	} while (isset($board[(($cell-1)/3)+1][(($cell-1)%3)+1]));
+	return $cell;
 }
 
 /**
  * Updates board with the provided move
  * @param array $board Game board
- * @param int $square Square to be marked
- * @param string $mark Mark used by the current player
+ * @param int $cell Cell where the token is to be put
+ * @param string $token Token used by the current player
  * @return array: Updated game board
  */
-function tictactoeUpdate($board, $square, $mark)
+function tictactoeUpdate($board, $cell, $token)
 {
-	if (is_int($square) && $square >= 1 && $square <= 9)
-		if (!isset($board[(($square-1)/3)+1][(($square-1)%3)+1]))
-			$board[(($square-1)/3)+1][(($square-1)%3)+1]=$mark;
+	if (is_int($cell) && $cell >= 1 && $cell <= 9)
+		if (!isset($board[(($cell-1)/3)+1][(($cell-1)%3)+1]))
+			$board[(($cell-1)/3)+1][(($cell-1)%3)+1]=$token;
 	return $board;
 }
 
@@ -39,17 +39,17 @@ function tictactoeFullBoard($board)
 }				
 
 /** 
- * Determines the winning row of 3 marks (if any)
+ * Returns all cells within winning lines (if any)
  * @param array $board Game board
- * @param int $square Last move
- * @return array: Winning row
+ * @param int $cell Last move
+ * @return array: Winning line
  */
-function tictactoeWinningRow($board, $square)
+function tictactoeWinningLine($board, $cell)
 {
 	$winners = array();
 
-	$i = (int)(($square-1)/3)+1; // coord i of $square
-	$j = (($square-1)%3)+1; // coord j of $square
+	$i = (int)(($cell-1)/3)+1; // coord i of $cell
+	$j = (($cell-1)%3)+1; // coord j of $cell
 	
 	if(isset($board[$i][1]) && isset($board[$i][2]) && isset($board[$i][3]) &&
 			($board[$i][1]==$board[$i][2]) && ($board[$i][2]==$board[$i][3]))
