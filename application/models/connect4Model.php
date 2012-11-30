@@ -81,14 +81,13 @@ function seriesContainsWinningLine($series)
 			else
 			{
 				if(count($consecutive)>=4)
-					array_push($winners,$consecutive);
+					$winners = array_merge($winners,$consecutive);
 				$consecutive=array();
 			} 
 		}
 		if(count($consecutive)>=4)
-			array_push($winners,$consecutive);
+			$winners = array_merge($winners,$consecutive);
 	}
-
 	return $winners;
 }
 
@@ -188,7 +187,6 @@ function connect4WinningLine($board, $last_col)
 		$keys = array_keys($checkable_lines[$i],$last_token);
 		foreach ($keys as $key)
 			$series[$key] = $coords_lines[$i][$key];
-		$prueba = seriesContainsWinningLine($series);
 		$winners = array_merge($winners, seriesContainsWinningLine($series));
 	}
 	

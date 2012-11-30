@@ -28,7 +28,7 @@
 <? if ($game_ended):
 		if (!$winners):?>
 <h2>Game drawn.</h2>
-<?		else: if ($board[$winners[0][0][0]][$winners[0][0][1]]=="X"):?>
+<?		else: if ($board[$winners[0][0]][$winners[0][1]]=="X"):?>
 <h2>You win!</h2>
 <?		else:?>
 <h2>Computer wins!</h2>
